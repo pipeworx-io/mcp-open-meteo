@@ -3,7 +3,7 @@
   "name": "io.github.pipeworx-io/open-meteo",
   "title": "Open Meteo",
   "description": "Open-Meteo MCP — weather forecast + historical reanalysis + sister APIs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "websiteUrl": "https://pipeworx.io/packs/open-meteo",
   "repository": {
     "url": "https://github.com/pipeworx-io/mcp-open-meteo",

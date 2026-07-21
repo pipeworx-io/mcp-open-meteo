@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-open-meteo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Open-Meteo MCP — weather forecast + historical reanalysis + sister APIs",
   "type": "module",
   "main": "src/index.ts",

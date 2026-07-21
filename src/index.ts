@@ -31,13 +31,16 @@ const AIR = 'https://air-quality-api.open-meteo.com/v1/air-quality';
 const MARINE = 'https://marine-api.open-meteo.com/v1/marine';
 const FLOOD = 'https://flood-api.open-meteo.com/v1/flood';
 
-const DEFAULT_HOURLY = 'temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,cloud_cover,weather_code';
-const DEFAULT_DAILY = 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code';
+const DEFAULT_HOURLY = 'temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,wind_speed_10m,cloud_cover,weather_code';
+// precipitation_probability_max (rain CHANCE %) is included alongside
+// precipitation_sum (rain AMOUNT mm) so "will it rain" / "which day has the
+// lowest rain probability" (e.g. crop-spraying planning) is answerable by default.
+const DEFAULT_DAILY = 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weather_code';
 
 const tools: McpToolExport['tools'] = [
   {
     name: 'forecast',
-    description: 'Weather forecast up to 16 days, hourly or daily.',
+    description: '"What\'s the weather in [city]" / "weather forecast for [location]" / "will it rain tomorrow", "rain chance / probability this week" / "temperature in [place] this week" / "wind / precipitation / humidity forecast" — global weather forecast up to 16 days ahead, hourly or daily, at any lat/lng. Returns temperature, precipitation, wind, humidity, cloud cover, weather codes by default; pass hourly/daily arg for custom variables. Free, keyless, no signup (Open-Meteo / ECMWF + national weather services). Pair with geocode to convert "Paris" → lat/lng first.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -56,7 +59,7 @@ const tools: McpToolExport['tools'] = [
   },
   {
     name: 'historical',
-    description: 'ERA5 reanalysis 1940-present. Date range required.',
+    description: '"What was the weather on [date]" / "historical weather for [location]" / "temperature in [city] last summer" / "rainfall during [period]" / "past weather data" — ERA5 reanalysis covering 1940-present at any global lat/lng. Returns hourly or daily temperature, precipitation, wind, humidity etc. for any date range. Use for climate analysis, retrospective event weather, or training data.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -73,7 +76,7 @@ const tools: McpToolExport['tools'] = [
   },
   {
     name: 'geocode',
-    description: 'Resolve a place name to coordinates.',
+    description: '"What are the coordinates of [city]" / "lat lng for [place]" / "find [town] location" — resolve a place name (city, village, region) to lat/lng so the other Open-Meteo tools can use them. Free, keyless, multilingual; returns up to 100 matches ranked by population. Use before forecast / historical / air_quality / marine / flood when you only have a place name.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -86,7 +89,7 @@ const tools: McpToolExport['tools'] = [
   },
   {
     name: 'air_quality',
-    description: 'PM2.5, PM10, O3, NO2, SO2, CO, dust, pollen.',
+    description: '"Air quality / AQI in [city]" / "is the air safe to breathe in [location]" / "pollution levels for [place]" / "smoke / smog / wildfire-smoke forecast" / "pollen forecast" — global air quality and pollen forecast at any lat/lng. Returns PM2.5, PM10, ozone (O3), NO2, SO2, CO, dust, and pollen (alder/birch/grass/mugwort/olive/ragweed) up to 5 days ahead, plus European AQI / US AQI. Free, keyless.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -100,7 +103,7 @@ const tools: McpToolExport['tools'] = [
   },
   {
     name: 'marine',
-    description: 'Wave height + period + direction (forecast).',
+    description: '"Wave / swell / surf forecast for [beach]" / "sea conditions in [bay]" / "wave height at [coordinates]" / "is it safe to sail" — global marine weather forecast (wave height, wave period, wave direction, wind waves, swell waves) at any ocean lat/lng. Free, keyless. Use for surf reports, sailing prep, fishing conditions, coastal planning.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -114,7 +117,7 @@ const tools: McpToolExport['tools'] = [
   },
   {
     name: 'flood',
-    description: 'Daily river discharge forecast (GloFAS model).',
+    description: '"Flood risk for [river]" / "river discharge forecast" / "will [river] flood" / "water levels at [location]" — daily river discharge forecast from the GloFAS global flood model. Returns predicted m³/s discharge up to 30 days ahead for any river-bearing lat/lng worldwide. Use for flood risk assessment, agriculture planning, hydrology research.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -170,13 +173,23 @@ async function historical(args: Record<string, unknown>) {
 }
 
 async function geocode(args: Record<string, unknown>) {
-  const params = new URLSearchParams({
-    name: reqStr(args, 'name', '"Tokyo"'),
-    count: String(Math.min(100, Math.max(1, (args.count as number) ?? 10))),
-    language: String(args.language ?? 'en'),
-    format: 'json',
-  });
-  return meteoGet(GEO, params);
+  const name = reqStr(args, 'name', '"Tokyo"');
+  const count = String(Math.min(100, Math.max(1, (args.count as number) ?? 10)));
+  const language = String(args.language ?? 'en');
+  const search = (n: string) =>
+    meteoGet(GEO, new URLSearchParams({ name: n, count, language, format: 'json' })) as Promise<{ results?: unknown[] }>;
+
+  let result = await search(name);
+  // Open-Meteo's geocoder matches on the bare place name and returns 0 results for
+  // "City, ST" / "City, State" — but the router routinely produces exactly that.
+  // Retry with the city part so "Fresno, CA" resolves like "Fresno".
+  if ((!result.results || result.results.length === 0) && name.includes(',')) {
+    const city = name.split(',')[0].trim();
+    if (city && city.toLowerCase() !== name.toLowerCase()) {
+      result = await search(city);
+    }
+  }
+  return result;
 }
 
 async function airQuality(args: Record<string, unknown>) {
