@@ -35,7 +35,7 @@ const DEFAULT_HOURLY = 'temperature_2m,relative_humidity_2m,precipitation,precip
 // precipitation_probability_max (rain CHANCE %) is included alongside
 // precipitation_sum (rain AMOUNT mm) so "will it rain" / "which day has the
 // lowest rain probability" (e.g. crop-spraying planning) is answerable by default.
-const DEFAULT_DAILY = 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weather_code';
+const DEFAULT_DAILY = 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,weather_code';
 
 const tools: McpToolExport['tools'] = [
   {
