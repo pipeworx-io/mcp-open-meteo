@@ -84,3 +84,13 @@ The gateway picks the right tool and fills the arguments automatically.
 ## License
 
 MIT
+
+## No MCP client? Call it over HTTP
+
+```bash
+curl -X POST https://gateway.pipeworx.io/v1/tools/open_meteo_forecast \
+  -H 'Content-Type: application/json' \
+  -d '{"latitude":40.7128,"longitude":-74.006,"temperature_unit":"fahrenheit","forecast_days":10}'
+```
+
+No account needed for the first calls. Inspect any tool: `GET https://gateway.pipeworx.io/v1/tools/open_meteo_forecast`. Find one: `POST https://gateway.pipeworx.io/v1/tools/search_packs` with `{"query":"..."}`.
