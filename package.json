@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-open-meteo",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Open-Meteo MCP — weather forecast + historical reanalysis + sister APIs",
   "type": "module",
   "main": "src/index.ts",
@@ -26,7 +26,7 @@
     "@cloudflare/workers-types": "^4.20260405.1"
   },
   "pipeworx": {
-    "sourceHash": "v1-7a6efc30143a506bf1d569425b8b7514da8bdcf97ecec6f76e5fad5a7ef278d7",
-    "sourceCommit": "97740c6ee04c8acbfe7dddcacfde9e88ff2b9ca0"
+    "sourceHash": "v1-8bab4c095ed5e06a81ab91e07a0472a7c01c644364071b364855eef0d2844162",
+    "sourceCommit": "f54ad77e789f27fe393978f9c080b5b18c87bb4f"
   }
 }
