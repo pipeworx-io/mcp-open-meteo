@@ -1,12 +1,20 @@
 {
   "name": "@pipeworx/mcp-open-meteo",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Open-Meteo MCP — weather forecast + historical reanalysis + sister APIs",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./tools.json": "./tools.json",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "mcp-open-meteo": "bin/cli.js"
+  },
+  "files": ["bin/", "lib/", "tools.json", "server.json"],
+  "engines": {
+    "node": ">=18"
   },
   "keywords": ["mcp", "mcp-server", "model-context-protocol", "pipeworx", "open-meteo"],
   "license": "MIT",
@@ -14,19 +22,12 @@
     "type": "git",
     "url": "git+https://github.com/pipeworx-io/mcp-open-meteo.git"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "tsx": "^4.19.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3",
-    "@cloudflare/workers-types": "^4.20260405.1"
-  },
+  "mcpName": "io.github.pipeworx-io/open-meteo",
   "pipeworx": {
-    "sourceHash": "v1-8bab4c095ed5e06a81ab91e07a0472a7c01c644364071b364855eef0d2844162",
-    "sourceCommit": "f54ad77e789f27fe393978f9c080b5b18c87bb4f"
+    "mode": "gateway",
+    "slug": "open-meteo",
+    "gatewaySlug": "open-meteo",
+    "sourceHash": "v1-10814fbab15708f191d9334b552cc469ea06b96b12ad1cb2e1efd8acb1fabbaf",
+    "sourceCommit": "b2c4383545bb35171d0ada2beb1c9c7168ea175e"
   }
 }
